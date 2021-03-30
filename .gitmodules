@@ -1,0 +1,3 @@
+[submodule "API"]
+	path = API
+	url = https://github.com/hive-entropy/hive-entropy-api
