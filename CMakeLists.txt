@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 14)
 # Add library's directory
 add_subdirectory(API)
 
+# Add test subdirectory
+add_subdirectory(test)
+
 # Add includes and sources
 set(SOURCE_FILES src/main.cpp)
 include_directories(include)
