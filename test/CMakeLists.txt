@@ -4,17 +4,35 @@ if(NOT EXISTS ${PROJECT_SOURCE_DIR}/test/lib)
     message(STATUS "Created lib directory in ${PROJECT_SOURCE_DIR}/test")
 endif()
 
-# Download the required libraries in lib folder
-message(STATUS "Downloading test libraries")
-set(CMD_ARGS "-LO" "https://raw.githubusercontent.com/eranpeer/FakeIt/master/single_header/catch/fakeit.hpp"
-        "-LO" "https://raw.githubusercontent.com/catchorg/Catch2/v2.x/single_include/catch2/catch.hpp")
-execute_process(COMMAND "curl" ${CMD_ARGS}
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/lib
-        RESULT_VARIABLE CURL_RESULT)
+function(download_library LIB_NAME URL DIRECTORY)
+    # Download the required library in given folder
+    message(STATUS "Downloading library: ${LIB_NAME}")
 
-# Print download status
-if(${CURL_RESULT} EQUAL 0)
-    message(STATUS "Test libraries successfully downloaded")
-else()
-    message(STATUS "Can't download libraries: ${CURL_RESULT}")
-endif()
+    # Extract file_name from url. The url must end with the header file with 'hpp' extension.
+    string(REGEX MATCH "[^/]+\.hpp$" FILE_NAME ${URL})
+
+    if(EXISTS ${DIRECTORY}/${FILE_NAME})
+        message(STATUS "Library already exists. Download skipped.")
+        return()
+    endif()
+
+    set(CMD_ARGS "-LO" ${URL})
+    execute_process(COMMAND "curl" ${CMD_ARGS}
+            WORKING_DIRECTORY ${DIRECTORY}
+            RESULT_VARIABLE CURL_RESULT)
+
+    # Print download status
+    if(${CURL_RESULT} EQUAL 0)
+        message(STATUS "Library successfully downloaded")
+    else()
+        message(STATUS "Can't download library: ${CURL_RESULT}")
+    endif()
+endfunction()
+
+download_library(FakeIt
+        "https://raw.githubusercontent.com/eranpeer/FakeIt/master/single_header/catch/fakeit.hpp"
+        ${PROJECT_SOURCE_DIR}/test/lib)
+
+download_library(Catch2
+        "https://raw.githubusercontent.com/catchorg/Catch2/v2.x/single_include/catch2/catch.hpp"
+        ${PROJECT_SOURCE_DIR}/test/lib)
