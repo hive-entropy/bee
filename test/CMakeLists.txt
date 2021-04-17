@@ -1,3 +1,6 @@
+##############################################
+# Import external dependencies
+
 # Create lib folder if it doesn't exist
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/test/lib)
     file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/test/lib)
@@ -36,3 +39,28 @@ download_library(FakeIt
 download_library(Catch2
         "https://raw.githubusercontent.com/catchorg/Catch2/v2.x/single_include/catch2/catch.hpp"
         ${PROJECT_SOURCE_DIR}/test/lib)
+
+
+##############################################
+# Create test target
+
+# Create a library target for the Catch and FakeIt header-only test frameworks.
+add_library(Catch_FakeIt INTERFACE)
+target_include_directories(Catch_FakeIt
+        INTERFACE lib
+        )
+
+add_executable (BeeTest
+        # Test files
+        src/test.cpp
+        src/bee_test.cpp
+        src/endpoint_test.cpp
+        src/processor_test.cpp
+        )
+
+target_link_libraries(BeeTest
+        PRIVATE
+            BeeLib
+            Catch_FakeIt
+        )
+

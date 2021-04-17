@@ -3,35 +3,40 @@ project(PDS_Bee)
 
 ##############################################
 # Find system dependencies
-find_package(HiveEntropyAPI)
+find_package(HiveEntropyAPI REQUIRED)
+find_package(Catch2 REQUIRED)
 
 ##############################################
 # Create target and set properties
 
-# Add source files
-set(SOURCE_FILES
-        src/main.cpp
-        src/Bee.cpp
-        src/Endpoint.cpp
-        src/Processor.cpp)
-
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+add_library(BeeLib
+        src/bee.cpp
+        src/endpoint.cpp
+        src/processor.cpp
+        )
+add_executable(Bee
+        src/main.cpp
+        )
 
 # Add header files
-target_include_directories(${PROJECT_NAME} PRIVATE include)
+target_include_directories(BeeLib PRIVATE include)
 
 # Set compiler options
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
+target_compile_options(BeeLib PRIVATE -Wall)
+target_compile_features(BeeLib PRIVATE cxx_std_14)
 
 # Link the library
-target_link_libraries(${PROJECT_NAME} PRIVATE HiveEntropyAPI::HiveEntropyAPI)
+target_link_libraries(BeeLib
+        PRIVATE
+            HiveEntropyAPI::HiveEntropyAPI
+            Catch2::Catch2
+        )
 
 ##############################################
 # Installation instructions
 
 ##############################################
-## Add test
-enable_testing()
+## Add tests
+# Test integration: https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md
 add_subdirectory(test)
