@@ -1,21 +1,37 @@
 cmake_minimum_required(VERSION 3.17)
 project(PDS_Bee)
-set(CMAKE_CXX_STANDARD 14)
 
-# Add library's directory
-add_subdirectory(API)
+##############################################
+# Find system dependencies
+find_package(HiveEntropyAPI)
 
-# Add test subdirectory
-add_subdirectory(test)
+##############################################
+# Create target and set properties
 
-# Add includes and sources
-set(SOURCE_FILES src/main.cpp)
-include_directories(include)
+# Add source files
+set(SOURCE_FILES
+        src/main.cpp
+        src/Bee.cpp
+        src/Endpoint.cpp
+        src/Processor.cpp)
 
 # Create the executable
-add_executable(PDS_Bee ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-# Add the library's headers
-include_directories(API/heapi/include)
+# Add header files
+target_include_directories(${PROJECT_NAME} PRIVATE include)
+
+# Set compiler options
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
+
 # Link the library
-target_link_libraries(PDS_Bee heapi)
+target_link_libraries(${PROJECT_NAME} PRIVATE HiveEntropyAPI::HiveEntropyAPI)
+
+##############################################
+# Installation instructions
+
+##############################################
+## Add test
+enable_testing()
+add_subdirectory(test)
