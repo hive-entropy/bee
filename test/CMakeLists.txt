@@ -55,7 +55,7 @@ add_executable (BeeTest
         src/bee_test.cpp
         src/endpoint_test.cpp
         src/processor_test.cpp
-        ../src/example.cpp)
+)
 
 target_link_libraries(BeeTest
         PRIVATE
