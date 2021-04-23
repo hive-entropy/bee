@@ -4,9 +4,13 @@
 
 #include "bee.h"
 #include "endpoint.h"
-#include "HiveEntropyAPI/Message.h"
-#include "HiveEntropyAPI/ResponseBuilder.h"
-#include "HiveEntropyAPI/GlobalContext.h"
+#include <HiveEntropyAPI/full.h>
+
+//Forward declaration
+template<typename T>
+void templatedCannon(coap_pdu_t* response, Message &inputMessage);
+
+//-----------------------------------------------------------------------------------
 
 Bee::Bee(Endpoint *endpoint, Processor *processor) : endpoint(endpoint), processor(processor) {}
 
@@ -25,13 +29,10 @@ void Bee::run() {
 
 void Bee::healthCallback(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
                           coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                          coap_pdu_t *response) {
-
+                          coap_pdu_t *response){
+    ResponseBuilder::heartbeatMessage().fillResponse(response);
 }
 
-
-template<typename T>
-void templatedCannon(coap_session_t *session, Message &inputMessage);
 void Bee::cannonMulCallback(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
                           coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
                           coap_pdu_t *response) {
@@ -39,28 +40,34 @@ void Bee::cannonMulCallback(coap_context_t *context, coap_resource_t *resource, 
     Message inputMessage(session, request);
 
     // Get the matrix type
-    std::basic_string<char> matrixType = inputMessage.getHeaders()[Headers::ELEMENT_TYPE];
+    std::string matrixType = inputMessage.getHeaders()[Headers::ELEMENT_TYPE];
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
-        templatedCannon<int>(session, inputMessage);
+        templatedCannon<int>(response, inputMessage);
     } else if (matrixType == typeid(double).name()) {
-        templatedCannon<double>(session, inputMessage);
+        templatedCannon<double>(response, inputMessage);
     } else if (matrixType == typeid(float).name()) {
-        templatedCannon<float>(session, inputMessage);
+        templatedCannon<float>(response, inputMessage);
     }
 }
 
+
+
+// ======================
+// Write once, use everywhere
+// ======================
+//                                          -Java
 template<typename T>
-void templatedCannon(coap_session_t *session, Message &inputMessage) {
-    coap_pdu_t *response;// Extract the necessary informations
-    basic_string<char> calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
-    basic_string<char> taskId = inputMessage.getHeaders()[Headers::TASK_ID];
+void templatedCannon(coap_pdu_t* response, Message &inputMessage) {
+    // Extract the necessary informations
+    std::string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
+    std::string taskId = inputMessage.getHeaders()[Headers::TASK_ID];
     int startRow = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_X]);
     int startCol = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_Y]);
     int steps = stoi(inputMessage.getHeaders()[Headers::STEPS]);
 
-    string globalId = calculationId + taskId;
+    std::string globalId = calculationId + taskId;
 
     // Deserialize the matrices
     vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(inputMessage.getContent());
@@ -76,7 +83,8 @@ void templatedCannon(coap_session_t *session, Message &inputMessage) {
         (*storedMatrix) += result;
         // Increment the actual step
         (*stepCounter)++;
-    } else {
+    }
+    else{
         // The computation starts
         // Store the result matrix
         GlobalContext<Matrix<T>>::registerObject(globalId, result); // TODO: Check if it creates a copy
@@ -86,19 +94,19 @@ void templatedCannon(coap_session_t *session, Message &inputMessage) {
 
     Message outputMessage;
     // Check if the computation is finished
-    if (stepCounter != nullptr && steps == (*stepCounter)) {
+    if (stepCounter != nullptr && steps == (*stepCounter)){
         // Send the result
         outputMessage = ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, taskId, startRow,startCol, result);
 
         // Empty the GlobalContext
         GlobalContext<int>::unregisterObject(globalId);
         GlobalContext<Matrix<T>>::unregisterObject(globalId);
-    } else
-    {
+    } 
+    else{
         // Send a acknowledgement message
         outputMessage = ResponseBuilder::heartbeatMessage();
     }
 
-    // Send the response
-    response = outputMessage.toCoapMessage(session);
+    // Fill the response to be sent
+    outputMessage.fillResponse(response);
 }
