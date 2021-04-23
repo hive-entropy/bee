@@ -10,8 +10,8 @@
 
 #include "endpoint.h"
 
-Endpoint::Endpoint(HiveEntropyNodeInterface *nodeInterface, ResponseBuilder *responseBuilder) : nodeInterface(
-        nodeInterface), responseBuilder(responseBuilder) {}
+Endpoint::Endpoint(HiveEntropyNodeInterface *nodeInterface) : nodeInterface(
+        nodeInterface) {}
 
 Endpoint::~Endpoint() {}
 

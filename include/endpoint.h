@@ -19,7 +19,6 @@ class HiveEntropyNodeInterface;
 class Endpoint {
 private:
     HiveEntropyNodeInterface *nodeInterface;
-    ResponseBuilder *responseBuilder;
 
 public:
     /**
@@ -27,7 +26,7 @@ public:
      * @param nodeInterface
      * @param responseBuilder
      */
-    Endpoint(HiveEntropyNodeInterface *nodeInterface, ResponseBuilder *responseBuilder);
+    Endpoint(HiveEntropyNodeInterface *nodeInterface);
 
     /**
      * Endpoint destructor.
