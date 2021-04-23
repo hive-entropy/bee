@@ -5,7 +5,7 @@
 #ifndef PDS_BEE_ENDPOINT_H
 #define PDS_BEE_ENDPOINT_H
 
-#include "HiveEntropyAPI/HiveEntropyNodeInterface.h"
+#include <HiveEntropyAPI/full.h>
 
 class Message;
 class ResponseBuilder;
@@ -18,7 +18,7 @@ class HiveEntropyNodeInterface;
  */
 class Endpoint {
 private:
-    HiveEntropyNodeInterface *nodeInterface;
+    HiveEntropyNode *nodeInterface;
 
 public:
     /**
@@ -26,7 +26,7 @@ public:
      * @param nodeInterface
      * @param responseBuilder
      */
-    Endpoint(HiveEntropyNodeInterface *nodeInterface);
+    Endpoint(HiveEntropyNode *nodeInterface);
 
     /**
      * Endpoint destructor.

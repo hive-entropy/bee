@@ -1,8 +1,8 @@
 #include <iostream>
-#include "../include/bee.h"
-#include "../include/endpoint.h"
-#include "../include/processor.h"
-#include "HiveEntropyAPI/full.h"
+#include "bee.h"
+#include "endpoint.h"
+#include "processor.h"
+#include <HiveEntropyAPI/full.h>
 
 
 int main() {

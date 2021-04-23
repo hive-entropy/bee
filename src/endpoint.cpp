@@ -2,15 +2,10 @@
 // Created by alban on 02/04/2021.
 //
 
-#include "HiveEntropyAPI/HiveEntropyNodeInterface.h"
-#include "HiveEntropyAPI/HiveEntropyNode.h"
-#include "HiveEntropyAPI/ResponseBuilder.h"
-#include "HiveEntropyAPI/GlobalContext.h"
-#include "HiveEntropyAPI/Message.h"
-
+#include <HiveEntropyAPI/full.h>
 #include "endpoint.h"
 
-Endpoint::Endpoint(HiveEntropyNodeInterface *nodeInterface) : nodeInterface(
+Endpoint::Endpoint(HiveEntropyNode *nodeInterface) : nodeInterface(
         nodeInterface) {}
 
 Endpoint::~Endpoint() {}

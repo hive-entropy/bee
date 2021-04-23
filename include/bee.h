@@ -5,7 +5,7 @@
 #ifndef PDS_BEE_BEE_H
 #define PDS_BEE_BEE_H
 
-#include "HiveEntropyAPI/HiveEntropyNodeInterface.h"
+#include <HiveEntropyAPI/full.h>
 
 class Message;
 class Endpoint;
