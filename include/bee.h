@@ -5,6 +5,8 @@
 #ifndef PDS_BEE_BEE_H
 #define PDS_BEE_BEE_H
 
+#include "HiveEntropyAPI/HiveEntropyNodeInterface.h"
+
 class Message;
 class Endpoint;
 class Processor;
@@ -21,6 +23,10 @@ class Bee {
 private:
     Endpoint *endpoint;
     Processor *processor;
+
+    static void healthCallback(coap_context_t *,coap_resource_t *,coap_session_t *,coap_pdu_t *,coap_binary_t *,coap_string_t *,coap_pdu_t *);
+    static void cannonMulCallback(coap_context_t *,coap_resource_t *,coap_session_t *,coap_pdu_t *,coap_binary_t *,coap_string_t *,coap_pdu_t *);
+
 public:
     /**
      * Class constructor.

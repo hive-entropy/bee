@@ -4,7 +4,6 @@ project(PDS_Bee)
 ##############################################
 # Find system dependencies
 find_package(HiveEntropyAPI REQUIRED)
-find_package(Catch2 REQUIRED)
 
 ##############################################
 # Create target and set properties
@@ -20,7 +19,7 @@ add_executable(Bee
         )
 
 # Add header files
-target_include_directories(BeeLib PRIVATE include)
+target_include_directories(BeeLib PUBLIC include)
 
 # Set compiler options
 target_compile_options(BeeLib PRIVATE -Wall)
@@ -30,7 +29,6 @@ target_compile_features(BeeLib PRIVATE cxx_std_14)
 target_link_libraries(BeeLib
         PRIVATE
             HiveEntropyAPI::HiveEntropyAPI
-            Catch2::Catch2
         )
 
 ##############################################

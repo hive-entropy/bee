@@ -51,12 +51,11 @@ target_include_directories(Catch_FakeIt
         )
 
 add_executable (BeeTest
-        # Test files
         src/test.cpp
         src/bee_test.cpp
         src/endpoint_test.cpp
         src/processor_test.cpp
-        )
+        ../src/example.cpp)
 
 target_link_libraries(BeeTest
         PRIVATE

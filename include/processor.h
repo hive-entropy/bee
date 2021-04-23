@@ -5,6 +5,11 @@
 #ifndef PDS_BEE_PROCESSOR_H
 #define PDS_BEE_PROCESSOR_H
 
+#include <map>
+#include <string>
+
+#include "HiveEntropyAPI/Matrix.h"
+
 /**
  * A processor that computes requested matrix operations.
  */
@@ -12,8 +17,7 @@ class Processor {
 private:
 
 public:
-//    Result process(Multiplication, Matrix);
-//    Result process(Convolution, Matrix);
+
 };
 
 

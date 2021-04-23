@@ -5,6 +5,8 @@
 #ifndef PDS_BEE_ENDPOINT_H
 #define PDS_BEE_ENDPOINT_H
 
+#include "HiveEntropyAPI/HiveEntropyNodeInterface.h"
+
 class Message;
 class ResponseBuilder;
 class HiveEntropyNodeInterface;
@@ -36,7 +38,7 @@ public:
      * Register the given function as a message handler.
      * @param callbackFunction Function that will be called when a message is received.
      */
-    void addMessageCallback(void (*callbackFunction)(Message message));
+    void addMessageCallback(std::string url, HttpMethod httpMethod, coap_method_handler_t callbackFunction);
 };
 
 
