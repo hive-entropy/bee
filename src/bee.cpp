@@ -21,15 +21,16 @@ Bee::~Bee() {
 void Bee::run() {
     // Ajoute les callbacks pour les urls existantes
     // URL : /health
-    endpoint->addMessageCallback("/health", HttpMethod::GET, &healthCallback);
+    endpoint->addMessageCallback("health", HttpMethod::GET, healthCallback);
     // URL : /task/multiplication/cannon
-    endpoint->addMessageCallback("/task/multiplication/cannon", HttpMethod::GET, &cannonMulCallback);
+    endpoint->addMessageCallback("task/multiplication/cannon", HttpMethod::POST,cannonMulCallback);
     // URL : /task/multiplication/rowcol
 }
 
 void Bee::healthCallback(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
                           coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
                           coap_pdu_t *response){
+    cout << "Received a message" << endl;
     ResponseBuilder::heartbeatMessage().fillResponse(response);
 }
 
@@ -52,8 +53,6 @@ void Bee::cannonMulCallback(coap_context_t *context, coap_resource_t *resource, 
     }
 }
 
-
-
 // ======================
 // Write once, use everywhere
 // ======================
@@ -73,6 +72,12 @@ void templatedCannon(coap_pdu_t* response, Message &inputMessage) {
     vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(inputMessage.getContent());
     // Multiply the matrices
     Matrix<T> result = matrices[0] * matrices[1];
+
+    cout << "Received following matrices:" << endl;
+    matrices[0].show();
+    matrices[1].show();
+    cout << "Computed result:" << endl;
+    result.show();
 
     // Check the actual step of the computation
     int *stepCounter;

@@ -17,6 +17,9 @@ int main() {
     // Start the worker
     std::cout << "Starting worker" << std::endl;
     bee.run();
+    std::cout << "Worker ready" << std::endl;
+
+    hiveEntropyNode.keepAlive();
 
     return 0;
 }
