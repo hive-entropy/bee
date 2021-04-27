@@ -5,11 +5,11 @@
 #include <HiveEntropyAPI/full.h>
 #include "endpoint.h"
 
-Endpoint::Endpoint(HiveEntropyNode *nodeInterface) : nodeInterface(
-        nodeInterface) {}
+Endpoint::Endpoint(HiveEntropyNode *node) : node(
+        node) {}
 
 Endpoint::~Endpoint() {}
 
 void Endpoint::addMessageCallback(std::string url, HttpMethod httpMethod, coap_method_handler_t callbackFunction) {
-    (*nodeInterface).registerMessageHandler(url, httpMethod, callbackFunction);
+    (*node).registerMessageHandler(url, httpMethod, callbackFunction);
 }

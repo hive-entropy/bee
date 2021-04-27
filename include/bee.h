@@ -24,9 +24,6 @@ private:
     Endpoint *endpoint;
     Processor *processor;
 
-    static void healthCallback(coap_context_t *,coap_resource_t *,coap_session_t *,coap_pdu_t *,coap_binary_t *,coap_string_t *,coap_pdu_t *);
-    static void cannonMulCallback(coap_context_t *,coap_resource_t *,coap_session_t *,coap_pdu_t *,coap_binary_t *,coap_string_t *,coap_pdu_t *);
-
 public:
     /**
      * Class constructor.

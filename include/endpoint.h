@@ -7,10 +7,6 @@
 
 #include <HiveEntropyAPI/full.h>
 
-class Message;
-class ResponseBuilder;
-class HiveEntropyNodeInterface;
-
 /**
  * An endpoint to communicate with other workers.
  * The listen method is passed a function that will serve as a callback. When a message is received, it is passed as an argument to the callback function.
@@ -18,15 +14,14 @@ class HiveEntropyNodeInterface;
  */
 class Endpoint {
 private:
-    HiveEntropyNode *nodeInterface;
+    HiveEntropyNode *node;
 
 public:
     /**
      * Endpoint constructor.
      * @param nodeInterface
-     * @param responseBuilder
      */
-    Endpoint(HiveEntropyNode *nodeInterface);
+    Endpoint(HiveEntropyNode *node);
 
     /**
      * Endpoint destructor.
