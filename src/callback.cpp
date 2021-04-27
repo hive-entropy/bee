@@ -131,50 +131,17 @@ template<typename T>
 void templatedRowCol(coap_pdu_t* response, Message &inputMessage) {
     // Extract the necessary information
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
-    string taskId = inputMessage.getHeaders()[Headers::TASK_ID];
     int startRow = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_X]);
     int startCol = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_Y]);
-    int steps = stoi(inputMessage.getHeaders()[Headers::STEPS]);
-
-    string globalId = calculationId + taskId;
 
     // Deserialize the row and column
     std::pair<Row<T>, Column<T>> rowCol = Serializer::unserializeRowColumn<T>(inputMessage.getContent());
     // Multiply the row and column
     T result = rowCol.first * rowCol.second;
 
-    // Check the actual step of the computation
-    int *stepCounter;
-    if ((stepCounter = GlobalContext<int>::get(globalId)) != nullptr) {
-        // The computation is going-on
-        // Add the result to the stored scalar
-        T *storedScalar = GlobalContext<T>::get(globalId);
-        (*storedScalar) += result;
-        // Increment the actual step
-        (*stepCounter)++;
-    }
-    else{
-        // The computation starts
-        // Store the result scalar
-        GlobalContext<T>::registerObject(globalId, result); // TODO: Check if it creates a copy
-        // Create and store the step counter
-        GlobalContext<int>::registerObject(globalId, 1);
-    }
-
     Message outputMessage;
-    // Check if the computation is finished
-    if (stepCounter != nullptr && steps == (*stepCounter)){
-        // Send the result
-        outputMessage = ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
-
-        // Empty the GlobalContext
-        GlobalContext<int>::unregisterObject(globalId);
-        GlobalContext<T>::unregisterObject(globalId);
-    }
-    else{
-        // Send a acknowledgement message
-        outputMessage = ResponseBuilder::heartbeatMessage();
-    }
+    // Add the result to the output message
+    outputMessage = ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
 
     // Fill the response to be sent
     outputMessage.fillResponse(response);
