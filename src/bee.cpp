@@ -20,7 +20,7 @@ void Bee::run() {
     endpoint->addMessageCallback("health", HttpMethod::GET, Callback::health);
     endpoint->addMessageCallback("require-help", HttpMethod::GET, Callback::requireHelp);
     endpoint->addMessageCallback("task/multiplication/cannon", HttpMethod::POST, Callback::cannonMultiplication);
-    endpoint->addMessageCallback("task/multiplication/rowcol", HttpMethod::GET, Callback::rowColMultiplication);
+    endpoint->addMessageCallback("task/multiplication/rowcol", HttpMethod::POST, Callback::rowColMultiplication);
 }
 
 
