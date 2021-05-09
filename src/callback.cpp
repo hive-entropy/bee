@@ -9,27 +9,27 @@
 
 //Forward declaration
 template<typename T>
-void templatedCannon(coap_pdu_t* response, Message &inputMessage);
+void templatedCannon(coap_resource_t* resource, coap_session_t* session, coap_pdu_t* request, coap_binary_t* token, coap_pdu_t* response, Message &inputMessage);
 
 template<typename T>
-void templatedRowCol(coap_pdu_t* response, Message &inputMessage);
+void templatedRowCol(coap_resource_t* resource, coap_session_t* session, coap_pdu_t* request, coap_binary_t* token, coap_pdu_t* response, Message &inputMessage);
 
 void Callback::health(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
                       coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
                       coap_pdu_t *response){
-    ResponseBuilder::heartbeatMessage().fillResponse(response);
+    ResponseBuilder::heartbeatMessage().fillResponse(resource,session,request,token,response);
 }
 
 void Callback::hardware(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
                         coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
                         coap_pdu_t *response) {
-    ResponseBuilder::hardwareMessage().fillResponse(response);
+    ResponseBuilder::hardwareMessage().fillResponse(resource,session,request,token,response);
 }
 
 void Callback::requireHelp(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
                            coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
                            coap_pdu_t *response) {
-    ResponseBuilder::assistanceResponseMessage(true).fillResponse(response);
+    ResponseBuilder::assistanceResponseMessage(true).fillResponse(resource,session,request,token,response);
 }
 
 void Callback::rowColMultiplication(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
@@ -43,11 +43,11 @@ void Callback::rowColMultiplication(coap_context_t *context, coap_resource_t *re
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
-        templatedRowCol<int>(response, inputMessage);
+        templatedRowCol<int>(resource,session,request,token,response, inputMessage);
     } else if (matrixType == typeid(double).name()) {
-        templatedRowCol<double>(response, inputMessage);
+        templatedRowCol<double>(resource,session,request,token,response, inputMessage);
     } else if (matrixType == typeid(float).name()) {
-        templatedRowCol<float>(response, inputMessage);
+        templatedRowCol<float>(resource,session,request,token,response, inputMessage);
     }
 }
 
@@ -62,11 +62,11 @@ void Callback::cannonMultiplication(coap_context_t *context, coap_resource_t *re
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
-        templatedCannon<int>(response, inputMessage);
+        templatedCannon<int>(resource,session,request,token,response, inputMessage);
     } else if (matrixType == typeid(double).name()) {
-        templatedCannon<double>(response, inputMessage);
+        templatedCannon<double>(resource,session,request,token,response, inputMessage);
     } else if (matrixType == typeid(float).name()) {
-        templatedCannon<float>(response, inputMessage);
+        templatedCannon<float>(resource,session,request,token,response, inputMessage);
     }
 }
 
@@ -75,7 +75,7 @@ void Callback::cannonMultiplication(coap_context_t *context, coap_resource_t *re
 // ======================
 //                                          -Java
 template<typename T>
-void templatedCannon(coap_pdu_t* response, Message &inputMessage) {
+void templatedCannon(coap_resource_t* resource, coap_session_t* session, coap_pdu_t* request, coap_binary_t* token, coap_pdu_t* response, Message &inputMessage) {
     // Extract the necessary information
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
     string taskId = inputMessage.getHeaders()[Headers::TASK_ID];
@@ -125,11 +125,11 @@ void templatedCannon(coap_pdu_t* response, Message &inputMessage) {
     }
 
     // Fill the response to be sent
-    outputMessage.fillResponse(response);
+    outputMessage.fillResponse(resource,session,request,token,response);
 }
 
 template<typename T>
-void templatedRowCol(coap_pdu_t* response, Message &inputMessage) {
+void templatedRowCol(coap_resource_t* resource, coap_session_t* session, coap_pdu_t* request, coap_binary_t* token, coap_pdu_t* response, Message &inputMessage) {
     // Extract the necessary information
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
     int startRow = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_X]);
@@ -145,5 +145,5 @@ void templatedRowCol(coap_pdu_t* response, Message &inputMessage) {
     outputMessage = ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
 
     // Fill the response to be sent
-    outputMessage.fillResponse(response);
+    outputMessage.fillResponse(resource,session,request,token,response);
 }
