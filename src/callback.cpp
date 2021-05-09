@@ -106,6 +106,7 @@ void templatedCannon(coap_pdu_t* response, Message &inputMessage) {
         GlobalContext<Matrix<T>>::registerObject(globalId, result); // TODO: Check if it creates a copy
         // Create and store the step counter
         GlobalContext<int>::registerObject(globalId, 1);
+        stepCounter = GlobalContext<int>::get(globalId);
     }
 
     Message outputMessage;
