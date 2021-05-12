@@ -18,9 +18,13 @@ int main() {
     Matrix<float> C(9,9,MatrixArchetype::ZEROS);
 */
     // Dependency injection
-    HiveEntropyNode hiveEntropyNode("127.0.0.1:9999");
+    HiveEntropyNode *hiveEntropyNode;
+    if(argc>=2)
+        hiveEntropyNode = new  HiveEntropyNode(std::string(argv[1])+":9999");
+    else
+         hiveEntropyNode = new  HiveEntropyNode("127.0.0.1:9999");
 
-    Endpoint endpoint(&hiveEntropyNode);
+    Endpoint endpoint(hiveEntropyNode);
     Processor processor;
 
     Bee bee(&endpoint, &processor);
