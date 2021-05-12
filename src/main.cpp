@@ -5,11 +5,16 @@
 #include <HiveEntropyAPI/full.h>
 
 
-int main() {
-    // Dependency injection
-    HiveEntropyNode hiveEntropyNode("127.0.0.1:9999");
+int main(int argc, char* argv[]) {
 
-    Endpoint endpoint(&hiveEntropyNode);
+    // Dependency injection
+    HiveEntropyNode *hiveEntropyNode;
+    if(argc>=2)
+        hiveEntropyNode = new  HiveEntropyNode(std::string(argv[1])+":9999");
+    else
+         hiveEntropyNode = new  HiveEntropyNode("127.0.0.1:9999");
+
+    Endpoint endpoint(hiveEntropyNode);
     Processor processor;
 
     Bee bee(&endpoint, &processor);
@@ -19,7 +24,7 @@ int main() {
     bee.run();
     std::cout << "Worker ready" << std::endl;
 
-    hiveEntropyNode.keepAlive();
+    hiveEntropyNode->keepAlive();
 
     return 0;
 }
