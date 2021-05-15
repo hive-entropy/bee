@@ -8,7 +8,7 @@
 
 
 
-int main() {
+int main(int argc, char* argv[]) {
     /*
     float a[] = {1,2,3,4,5,6,7,8,9,
                         1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,
@@ -50,7 +50,7 @@ int main() {
     C.show();
     cout << "end" << endl;
     */
-    hiveEntropyNode.keepAlive();
+    hiveEntropyNode->keepAlive();
 
     return 0;
 }
