@@ -17,10 +17,10 @@ Bee::~Bee() {
 
 void Bee::run() {
     // Ajoute les callbacks pour les urls existantes
-    endpoint->addMessageCallback("health", HttpMethod::GET, Callback::health);
-    endpoint->addMessageCallback("require-help", HttpMethod::GET, Callback::requireHelp);
-    endpoint->addMessageCallback("task/multiplication/cannon", HttpMethod::POST, Callback::cannonMultiplication);
-    endpoint->addMessageCallback("task/multiplication/rowcol", HttpMethod::POST, Callback::rowColMultiplication);
+    endpoint->addMessageCallback<Callback::health>("health", HttpMethod::GET);
+    endpoint->addMessageCallback<Callback::requireHelp>("require-help", HttpMethod::GET);
+    endpoint->addMessageCallback<Callback::cannonMultiplication>("task/multiplication/cannon", HttpMethod::POST);
+    endpoint->addMessageCallback<Callback::rowColMultiplication>("task/multiplication/rowcol", HttpMethod::POST);
 }
 
 

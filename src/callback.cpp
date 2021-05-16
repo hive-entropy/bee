@@ -9,64 +9,48 @@
 
 //Forward declaration
 template<typename T>
-void templatedCannon(coap_resource_t* resource, coap_session_t* session, coap_pdu_t* request, coap_binary_t* token, coap_pdu_t* response, Message &inputMessage);
+void templatedCannon(Message &inputMessage);
 
 template<typename T>
-void templatedRowCol(coap_resource_t* resource, coap_session_t* session, coap_pdu_t* request, coap_binary_t* token, coap_pdu_t* response, Message &inputMessage);
+void templatedRowCol(Message &inputMessage);
 
-void Callback::health(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                      coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                      coap_pdu_t *response){
-    ResponseBuilder::heartbeatMessage().fillResponse(resource,session,request,token,response);
+void Callback::health(Message message) {
+    ResponseBuilder::heartbeatMessage();
 }
 
-void Callback::hardware(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                        coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                        coap_pdu_t *response) {
-    ResponseBuilder::hardwareMessage().fillResponse(resource,session,request,token,response);
+void Callback::hardware(Message message) {
+    ResponseBuilder::hardwareMessage();
 }
 
-void Callback::requireHelp(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                           coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                           coap_pdu_t *response) {
-    ResponseBuilder::assistanceResponseMessage(true).fillResponse(resource,session,request,token,response);
+void Callback::requireHelp(Message message) {
+    ResponseBuilder::assistanceResponseMessage(true);
 }
 
-void Callback::rowColMultiplication(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                                    coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                                    coap_pdu_t *response) {
-    // Extract the inputMessage
-    Message inputMessage(session, request);
-
+void Callback::rowColMultiplication(Message message) {
     // Get the matrix type
-    string matrixType = inputMessage.getHeaders()[Headers::ELEMENT_TYPE];
+    string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
-        templatedRowCol<int>(resource,session,request,token,response, inputMessage);
+        templatedRowCol<int>(message);
     } else if (matrixType == typeid(double).name()) {
-        templatedRowCol<double>(resource,session,request,token,response, inputMessage);
+        templatedRowCol<double>(message);
     } else if (matrixType == typeid(float).name()) {
-        templatedRowCol<float>(resource,session,request,token,response, inputMessage);
+        templatedRowCol<float>(message);
     }
 }
 
-void Callback::cannonMultiplication(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                                    coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                                    coap_pdu_t *response) {
-    // Extract the inputMessage
-    Message inputMessage(session, request);
-
+void Callback::cannonMultiplication(Message message) {
     // Get the matrix type
-    string matrixType = inputMessage.getHeaders()[Headers::ELEMENT_TYPE];
+    string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
-        templatedCannon<int>(resource,session,request,token,response, inputMessage);
+        templatedCannon<int>(message);
     } else if (matrixType == typeid(double).name()) {
-        templatedCannon<double>(resource,session,request,token,response, inputMessage);
+        templatedCannon<double>(message);
     } else if (matrixType == typeid(float).name()) {
-        templatedCannon<float>(resource,session,request,token,response, inputMessage);
+        templatedCannon<float>(message);
     }
 }
 
@@ -75,7 +59,7 @@ void Callback::cannonMultiplication(coap_context_t *context, coap_resource_t *re
 // ======================
 //                                          -Java
 template<typename T>
-void templatedCannon(coap_resource_t* resource, coap_session_t* session, coap_pdu_t* request, coap_binary_t* token, coap_pdu_t* response, Message &inputMessage) {
+void templatedCannon(Message &inputMessage) {
     // Extract the necessary information
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
     string taskId = inputMessage.getHeaders()[Headers::TASK_ID];
@@ -91,29 +75,33 @@ void templatedCannon(coap_resource_t* resource, coap_session_t* session, coap_pd
     Matrix<T> result = matrices[0] * matrices[1];
 
     // Check the actual step of the computation
-    int *stepCounter;
-    if ((stepCounter = GlobalContext<int>::get(globalId)) != nullptr) {
-        // The computation is going-on
-        // Add the result to the stored matrix
-        Matrix<T> *storedMatrix = GlobalContext<Matrix<T>>::get(globalId);
-        (*storedMatrix) += result;
-        // Increment the actual step
-        (*stepCounter)++;
+    int stepCounter;
+    try {
+        stepCounter = GlobalContext<int>::get(globalId);
     }
-    else{
+    catch (exception &e) {
+        stepCounter = 0;
+    }
+
+    if (stepCounter == 0) {
         // The computation starts
         // Store the result matrix
-        GlobalContext<Matrix<T>>::registerObject(globalId, result); // TODO: Check if it creates a copy
+        GlobalContext<Matrix<T>>::registerObject(globalId, result);
         // Create and store the step counter
         GlobalContext<int>::registerObject(globalId, 1);
         stepCounter = GlobalContext<int>::get(globalId);
+    } else {
+        // The computation is going-on
+        // Add the result to the stored matrix
+        GlobalContext<Matrix<T>>::get(globalId) += result;
+        // Increment the actual step
+        stepCounter++;
     }
 
-    Message outputMessage;
     // Check if the computation is finished
-    if (stepCounter != nullptr && steps == (*stepCounter)){
+    if (steps == stepCounter){
         // Send the result
-        outputMessage = ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, taskId, startRow,startCol, result);
+        ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, taskId, startRow,startCol, result);
 
         // Empty the GlobalContext
         GlobalContext<int>::unregisterObject(globalId);
@@ -121,15 +109,12 @@ void templatedCannon(coap_resource_t* resource, coap_session_t* session, coap_pd
     }
     else{
         // Send a acknowledgement message
-        outputMessage = ResponseBuilder::heartbeatMessage();
+        ResponseBuilder::heartbeatMessage();
     }
-
-    // Fill the response to be sent
-    outputMessage.fillResponse(resource,session,request,token,response);
 }
 
 template<typename T>
-void templatedRowCol(coap_resource_t* resource, coap_session_t* session, coap_pdu_t* request, coap_binary_t* token, coap_pdu_t* response, Message &inputMessage) {
+void templatedRowCol(Message &inputMessage) {
     // Extract the necessary information
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
     int startRow = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_X]);
@@ -140,10 +125,6 @@ void templatedRowCol(coap_resource_t* resource, coap_session_t* session, coap_pd
     // Multiply the row and column
     T result = rowCol.first * rowCol.second;
 
-    Message outputMessage;
     // Add the result to the output message
-    outputMessage = ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
-
-    // Fill the response to be sent
-    outputMessage.fillResponse(resource,session,request,token,response);
+    ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
 }
