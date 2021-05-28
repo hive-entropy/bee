@@ -9,65 +9,54 @@
 
 //Forward declaration
 template<typename T>
-void templatedCannon(coap_pdu_t* response, Message &inputMessage);
+Message templatedCannon(Message &inputMessage);
 
 template<typename T>
-void templatedRowCol(coap_pdu_t* response, Message &inputMessage);
+Message templatedRowCol(Message &inputMessage);
 
-void Callback::health(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                      coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                      coap_pdu_t *response){
-    ResponseBuilder::heartbeatMessage().fillResponse(response);
+Message Callback::health(Message message) {
+    return ResponseBuilder::heartbeatMessage();
 }
 
-void Callback::hardware(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                        coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                        coap_pdu_t *response) {
-    ResponseBuilder::hardwareMessage().fillResponse(response);
+Message Callback::hardware(Message message) {
+    return ResponseBuilder::hardwareMessage();
 }
 
-void Callback::requireHelp(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                           coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                           coap_pdu_t *response) {
-    ResponseBuilder::assistanceResponseMessage(true).fillResponse(response);
+Message Callback::requireHelp(Message message) {
+    return ResponseBuilder::assistanceResponseMessage(true);
 }
 
-void Callback::rowColMultiplication(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                                    coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                                    coap_pdu_t *response) {
-    // Extract the inputMessage
-    Message inputMessage(session, request);
-
+Message Callback::rowColMultiplication(Message message) {
     // Get the matrix type
-    string matrixType = inputMessage.getHeaders()[Headers::ELEMENT_TYPE];
+    string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
-        templatedRowCol<int>(response, inputMessage);
+        return templatedRowCol<int>(message);
     } else if (matrixType == typeid(double).name()) {
-        templatedRowCol<double>(response, inputMessage);
+        return templatedRowCol<double>(message);
     } else if (matrixType == typeid(float).name()) {
-        templatedRowCol<float>(response, inputMessage);
+        return templatedRowCol<float>(message);
     }
 }
 
-void Callback::cannonMultiplication(coap_context_t *context, coap_resource_t *resource, coap_session_t *session,
-                                    coap_pdu_t *request, coap_binary_t *token, coap_string_t *query,
-                                    coap_pdu_t *response) {
-    // Extract the inputMessage
-    Message inputMessage(session, request);
-
+Message Callback::cannonMultiplication(Message message) {
     // Get the matrix type
-    string matrixType = inputMessage.getHeaders()[Headers::ELEMENT_TYPE];
+    string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
-        templatedCannon<int>(response, inputMessage);
+        return templatedCannon<int>(message);
     } else if (matrixType == typeid(double).name()) {
-        templatedCannon<double>(response, inputMessage);
+        return templatedCannon<double>(message);
     } else if (matrixType == typeid(float).name()) {
-        templatedCannon<float>(response, inputMessage);
+        return templatedCannon<float>(message);
     }
+}
+
+Message Callback::latency(Message message){
+    cout << "[received] "+message.getContent() << endl;
+    return ResponseBuilder::heartbeatMessage();
 }
 
 // ======================
@@ -75,7 +64,7 @@ void Callback::cannonMultiplication(coap_context_t *context, coap_resource_t *re
 // ======================
 //                                          -Java
 template<typename T>
-void templatedCannon(coap_pdu_t* response, Message &inputMessage) {
+Message templatedCannon(Message &inputMessage) {
     // Extract the necessary information
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
     string taskId = inputMessage.getHeaders()[Headers::TASK_ID];
@@ -91,45 +80,46 @@ void templatedCannon(coap_pdu_t* response, Message &inputMessage) {
     Matrix<T> result = matrices[0] * matrices[1];
 
     // Check the actual step of the computation
-    int *stepCounter;
-    if ((stepCounter = GlobalContext<int>::get(globalId)) != nullptr) {
-        // The computation is going-on
-        // Add the result to the stored matrix
-        Matrix<T> *storedMatrix = GlobalContext<Matrix<T>>::get(globalId);
-        (*storedMatrix) += result;
-        // Increment the actual step
-        (*stepCounter)++;
+    int stepCounter;
+    try {
+        stepCounter = GlobalContext<int>::get(globalId);
     }
-    else{
+    catch (exception &e) {
+        stepCounter = 0;
+    }
+
+    if (stepCounter == 0) {
         // The computation starts
         // Store the result matrix
-        GlobalContext<Matrix<T>>::registerObject(globalId, result); // TODO: Check if it creates a copy
+        GlobalContext<Matrix<T>>::registerObject(globalId, result);
         // Create and store the step counter
         GlobalContext<int>::registerObject(globalId, 1);
         stepCounter = GlobalContext<int>::get(globalId);
+    } else {
+        // The computation is going-on
+        // Add the result to the stored matrix
+        GlobalContext<Matrix<T>>::get(globalId) += result;
+        // Increment the actual step
+        stepCounter++;
     }
 
-    Message outputMessage;
     // Check if the computation is finished
-    if (stepCounter != nullptr && steps == (*stepCounter)){
-        // Send the result
-        outputMessage = ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, taskId, startRow,startCol, result);
-
+    if (steps == stepCounter){
         // Empty the GlobalContext
         GlobalContext<int>::unregisterObject(globalId);
         GlobalContext<Matrix<T>>::unregisterObject(globalId);
+
+        // Send the result
+        return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, taskId, startRow,startCol, result);
     }
     else{
         // Send a acknowledgement message
-        outputMessage = ResponseBuilder::heartbeatMessage();
+        return ResponseBuilder::heartbeatMessage();
     }
-
-    // Fill the response to be sent
-    outputMessage.fillResponse(response);
 }
 
 template<typename T>
-void templatedRowCol(coap_pdu_t* response, Message &inputMessage) {
+Message templatedRowCol(Message &inputMessage) {
     // Extract the necessary information
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
     int startRow = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_X]);
@@ -140,10 +130,6 @@ void templatedRowCol(coap_pdu_t* response, Message &inputMessage) {
     // Multiply the row and column
     T result = rowCol.first * rowCol.second;
 
-    Message outputMessage;
     // Add the result to the output message
-    outputMessage = ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
-
-    // Fill the response to be sent
-    outputMessage.fillResponse(response);
+    return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
 }

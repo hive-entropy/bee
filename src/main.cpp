@@ -1,4 +1,6 @@
 #include <iostream>
+#include<unistd.h>
+#include <list>
 #include "bee.h"
 #include "endpoint.h"
 #include "processor.h"
@@ -24,13 +26,19 @@ void waitXsec(int x){
 
 
 
-int main() {
-    // Dependency injection
-    HiveEntropyNode hiveEntropyNode("127.0.0.1:6969");
-    HiveEntropyNode hiveEntropyNode2("127.0.0.1:9999");
 
-    Endpoint endpoint(&hiveEntropyNode);
-    Endpoint endpoint2(&hiveEntropyNode2);
+int main(int argc, char* argv[]) {
+    // Dependency injection
+    HiveEntropyNode *hiveEntropyNode;
+    if(argc>=2){
+        cout << "Found IP address "+std::string(argv[1])+" to use" << endl;
+        hiveEntropyNode = new  HiveEntropyNode(std::string(argv[1])+":9999");
+    }
+    else
+         hiveEntropyNode = new  HiveEntropyNode("127.0.0.1:9999");
+
+    Endpoint endpoint(hiveEntropyNode);
+    Endpoint endpoint2(hiveEntropyNode);
     Processor processor;
     Processor processor2;
 
@@ -42,56 +50,7 @@ int main() {
     bee.run();
     bee2.run();
     std::cout << "Worker ready" << std::endl;
-
-    //On crée les matrices
-    float a[] = {1,2,3,4,5,6,7,8,9,
-                1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,
-                9,2,7,4,5,6,3,8,1};
-    Matrix<float> A(9,9,a);
-    Matrix<float> B(9,9,MatrixArchetype::ONES);
-    Matrix<float> C(9,9,MatrixArchetype::ZEROS);
-
-    /// Function
-    std::string matrixName = "matrixResult";
-    std::string collectionName = "boolCollection";
-    std::string id="potato";
-/*
-    std::map<std::string, bool> boolCollection;
-    boolCollection[id] = false;
-    
-
-    GlobalContext<std::map<std::string, bool>>::registerObject(collectionName,boolCollection);
-*/
-    ///
-
-    hiveEntropyNode.registerResponseHandler(MessageHandler::handleMessage);
-
-    //On vérif que le noeud est bien en vie (why not? Ça sert pas dans le calcul mais bon)
-    
-
-    //CalculationId
-    
-    
-    //On prépare une place pour ranger le résultat
-    Matrix<float> result(9,9);
-    GlobalContext<Matrix<float>>::registerObject(id,result);
-
-
-    //On envoie un bloc d'exemple au noeud
-    cout << "Sending..." << endl;
-    //hiveEntropyNode.sendMatrixMultiplicationTask("coap://127.0.0.1:9999",A.getSubmatrix(0,0,2,2),B.getSubmatrix(0,0,2,2),0,0,1,"whatever",id);
-
-    //Alternativement si on veut la méthode RowColumn
-    //n.sendMatrixMultiplicationTask("coap://127.0.0.1:9999",Row<float>(9,1,A.getRow(1)),Column<float>(9,0,B.getColumn(0)),id);
-
- 
-    //On montre le résultat tel que calculé en local
-    cout << "The result from local:" << endl;
-    Matrix<float> c = A.getSubmatrix(0,0,2,2)*B.getSubmatrix(0,0,2,2);
-    c.show();
-
-
-    hiveEntropyNode.keepAlive();
+    hiveEntropyNode->keepAlive();
 
     return 0;
 }

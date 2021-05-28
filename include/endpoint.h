@@ -32,8 +32,14 @@ public:
      * Register the given function as a message handler.
      * @param callbackFunction Function that will be called when a message is received.
      */
-    void addMessageCallback(std::string url, HttpMethod httpMethod, coap_method_handler_t callbackFunction);
+    template<Message(*F)(Message)>
+    void addMessageCallback(std::string url, HttpMethod httpMethod);
 };
+
+template<Message(*F)(Message)>
+void Endpoint::addMessageCallback(std::string url, HttpMethod httpMethod) {
+    node->registerMessageHandler<F>(url, httpMethod);
+}
 
 
 #endif //PDS_BEE_ENDPOINT_H
