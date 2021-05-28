@@ -32,11 +32,11 @@ public:
      * Register the given function as a message handler.
      * @param callbackFunction Function that will be called when a message is received.
      */
-    template<void(*F)(Message)>
+    template<Message(*F)(Message)>
     void addMessageCallback(std::string url, HttpMethod httpMethod);
 };
 
-template<void(*F)(Message)>
+template<Message(*F)(Message)>
 void Endpoint::addMessageCallback(std::string url, HttpMethod httpMethod) {
     node->registerMessageHandler<F>(url, httpMethod);
 }

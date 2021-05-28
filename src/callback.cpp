@@ -9,49 +9,54 @@
 
 //Forward declaration
 template<typename T>
-void templatedCannon(Message &inputMessage);
+Message templatedCannon(Message &inputMessage);
 
 template<typename T>
-void templatedRowCol(Message &inputMessage);
+Message templatedRowCol(Message &inputMessage);
 
-void Callback::health(Message message) {
-    ResponseBuilder::heartbeatMessage();
+Message Callback::health(Message message) {
+    return ResponseBuilder::heartbeatMessage();
 }
 
-void Callback::hardware(Message message) {
-    ResponseBuilder::hardwareMessage();
+Message Callback::hardware(Message message) {
+    return ResponseBuilder::hardwareMessage();
 }
 
-void Callback::requireHelp(Message message) {
-    ResponseBuilder::assistanceResponseMessage(true);
+Message Callback::requireHelp(Message message) {
+    return ResponseBuilder::assistanceResponseMessage(true);
 }
 
-void Callback::rowColMultiplication(Message message) {
+Message Callback::rowColMultiplication(Message message) {
     // Get the matrix type
     string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
-        templatedRowCol<int>(message);
+        return templatedRowCol<int>(message);
     } else if (matrixType == typeid(double).name()) {
-        templatedRowCol<double>(message);
+        return templatedRowCol<double>(message);
     } else if (matrixType == typeid(float).name()) {
-        templatedRowCol<float>(message);
+        return templatedRowCol<float>(message);
     }
 }
 
-void Callback::cannonMultiplication(Message message) {
+Message Callback::cannonMultiplication(Message message) {
     // Get the matrix type
     string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
-        templatedCannon<int>(message);
+        return templatedCannon<int>(message);
     } else if (matrixType == typeid(double).name()) {
-        templatedCannon<double>(message);
+        return templatedCannon<double>(message);
     } else if (matrixType == typeid(float).name()) {
-        templatedCannon<float>(message);
+        return templatedCannon<float>(message);
     }
+}
+
+Message Callback::latency(Message message){
+    cout << "[received] "+message.getContent() << endl;
+    return ResponseBuilder::heartbeatMessage();
 }
 
 // ======================
@@ -59,7 +64,7 @@ void Callback::cannonMultiplication(Message message) {
 // ======================
 //                                          -Java
 template<typename T>
-void templatedCannon(Message &inputMessage) {
+Message templatedCannon(Message &inputMessage) {
     // Extract the necessary information
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
     string taskId = inputMessage.getHeaders()[Headers::TASK_ID];
@@ -100,21 +105,21 @@ void templatedCannon(Message &inputMessage) {
 
     // Check if the computation is finished
     if (steps == stepCounter){
-        // Send the result
-        ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, taskId, startRow,startCol, result);
-
         // Empty the GlobalContext
         GlobalContext<int>::unregisterObject(globalId);
         GlobalContext<Matrix<T>>::unregisterObject(globalId);
+
+        // Send the result
+        return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, taskId, startRow,startCol, result);
     }
     else{
         // Send a acknowledgement message
-        ResponseBuilder::heartbeatMessage();
+        return ResponseBuilder::heartbeatMessage();
     }
 }
 
 template<typename T>
-void templatedRowCol(Message &inputMessage) {
+Message templatedRowCol(Message &inputMessage) {
     // Extract the necessary information
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
     int startRow = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_X]);
@@ -126,5 +131,5 @@ void templatedRowCol(Message &inputMessage) {
     T result = rowCol.first * rowCol.second;
 
     // Add the result to the output message
-    ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
+    return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
 }

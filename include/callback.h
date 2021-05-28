@@ -9,11 +9,12 @@
 
 class Callback {
 public:
-    static void health(Message message);
-    static void hardware(Message message);
-    static void requireHelp(Message message);
-    static void rowColMultiplication(Message message);
-    static void cannonMultiplication(Message message);
+    static Message health(Message message);
+    static Message hardware(Message message);
+    static Message requireHelp(Message message);
+    static Message rowColMultiplication(Message message);
+    static Message cannonMultiplication(Message message);
+    static Message latency(Message message);
 };
 
 
