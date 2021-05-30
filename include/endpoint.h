@@ -28,17 +28,21 @@ public:
      */
     virtual ~Endpoint();
 
-    /**
-     * Register the given function as a message handler.
-     * @param callbackFunction Function that will be called when a message is received.
-     */
     template<Message(*F)(Message)>
     void addMessageCallback(std::string url, HttpMethod httpMethod);
+
+    template<Message(*F)(Message)>
+    void addAsynchronousMessageCallback(std::string url, HttpMethod httpMethod);
 };
 
 template<Message(*F)(Message)>
 void Endpoint::addMessageCallback(std::string url, HttpMethod httpMethod) {
     node->registerMessageHandler<F>(url, httpMethod);
+}
+
+template<Message(*F)(Message)>
+void Endpoint::addAsynchronousMessageCallback(std::string url, HttpMethod httpMethod) {
+    node->registerAsynchronousHandler<F>(url, httpMethod);
 }
 
 

@@ -19,8 +19,8 @@ void Bee::run() {
     // Ajoute les callbacks pour les urls existantes
     endpoint->addMessageCallback<Callback::health>("health", HttpMethod::GET);
     endpoint->addMessageCallback<Callback::requireHelp>("require-help", HttpMethod::GET);
-    endpoint->addMessageCallback<Callback::cannonMultiplication>("task/multiplication/cannon", HttpMethod::POST);
-    endpoint->addMessageCallback<Callback::rowColMultiplication>("task/multiplication/rowcol", HttpMethod::POST);
+    endpoint->addAsynchronousMessageCallback<Callback::cannonMultiplication>("task/multiplication/cannon", HttpMethod::POST);
+    endpoint->addAsynchronousMessageCallback<Callback::rowColMultiplication>("task/multiplication/rowcol", HttpMethod::POST);
     endpoint->addMessageCallback<Callback::latency>("latency",HttpMethod::POST);
 }
 
