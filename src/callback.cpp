@@ -59,6 +59,7 @@ Message Callback::latency(Message message){
     return ResponseBuilder::heartbeatMessage();
 }
 
+
 // ======================
 // Write once, use everywhere
 // ======================

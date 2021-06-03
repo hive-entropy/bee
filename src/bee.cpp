@@ -22,6 +22,7 @@ void Bee::run() {
     endpoint->addAsynchronousMessageCallback<Callback::cannonMultiplication>("task/multiplication/cannon", HttpMethod::POST);
     endpoint->addAsynchronousMessageCallback<Callback::rowColMultiplication>("task/multiplication/rowcol", HttpMethod::POST);
     endpoint->addMessageCallback<Callback::latency>("latency",HttpMethod::POST);
+    endpoint->addMessageCallback<Callback::hardware>("hardware",HttpMethod::POST);
 }
 
 
