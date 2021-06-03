@@ -54,10 +54,26 @@ Message Callback::cannonMultiplication(Message message) {
     }
 }
 
-Message Callback::latency(Message message){
-    cout << "[received] "+message.getContent() << endl;
-    return ResponseBuilder::heartbeatMessage();
+Message Callback::identity(Message message){
+
 }
+
+Message Callback::stop(Message message){
+
+}
+
+Message Callback::pause(Message message){
+
+}
+
+Message Callback::resume(Message message){
+
+}
+
+Message Callback::logs(Message message){
+
+}
+
 
 // ======================
 // Write once, use everywhere
@@ -124,12 +140,26 @@ Message templatedRowCol(Message &inputMessage) {
     string calculationId = inputMessage.getHeaders()[Headers::CALCULATION_ID];
     int startRow = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_X]);
     int startCol = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_Y]);
+    string serializedType = inputMessage.getHeaders()[Headers::SERIALIZED_TYPE];
 
-    // Deserialize the row and column
-    std::pair<Row<T>, Column<T>> rowCol = Serializer::unserializeRowColumn<T>(inputMessage.getContent());
-    // Multiply the row and column
-    T result = rowCol.first * rowCol.second;
+    if(serializedType==SERIALIZED_TYPE_ROWCOL){
+        // Deserialize the row and column
+        std::pair<Row<T>, Column<T>> rowCol = Serializer::unserializeRowColumn<T>(inputMessage.getContent());
+        // Multiply the row and column
+        T result = rowCol.first * rowCol.second;
 
-    // Add the result to the output message
-    return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
+        // Add the result to the output message
+        return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
+    }
+    else if(serializedType==SERIALIZED_TYPE_MATRICES){
+        // Deserialize the row and column
+        std::vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(inputMessage.getContent());
+
+        // Multiply the row and column
+        Matrix<T> result = matrices[0] * matrices[1];
+        
+        // Add the result to the output message
+        return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
+    }
+
 }

@@ -21,7 +21,11 @@ void Bee::run() {
     endpoint->addMessageCallback<Callback::requireHelp>("require-help", HttpMethod::GET);
     endpoint->addAsynchronousMessageCallback<Callback::cannonMultiplication>("task/multiplication/cannon", HttpMethod::POST);
     endpoint->addAsynchronousMessageCallback<Callback::rowColMultiplication>("task/multiplication/rowcol", HttpMethod::POST);
-    endpoint->addMessageCallback<Callback::latency>("latency",HttpMethod::POST);
+    endpoint->addMessageCallback<Callback::identity>("discover",HttpMethod::GET);
+    endpoint->addMessageCallback<Callback::stop>("stop",HttpMethod::POST);
+    endpoint->addMessageCallback<Callback::pause>("pause",HttpMethod::POST);
+    endpoint->addMessageCallback<Callback::resume>("resume",HttpMethod::POST);
+    endpoint->addMessageCallback<Callback::logs>("logs",HttpMethod::GET);
 }
 
 
