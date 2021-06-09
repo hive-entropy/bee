@@ -27,7 +27,7 @@ void Bee::run() {
     endpoint->addMessageCallback<Callback::pause>("pause",HttpMethod::POST);
     endpoint->addMessageCallback<Callback::resume>("resume",HttpMethod::POST);
     endpoint->addMessageCallback<Callback::logs>("logs",HttpMethod::GET);
-    endpoint->addMessageCallback<Callback::hardware>("hardware",HttpMethod::POST);
+    endpoint->addMessageCallback<Callback::hardware>("hardware",HttpMethod::GET);
 }
 
 
