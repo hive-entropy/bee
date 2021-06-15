@@ -14,6 +14,7 @@ public:
     static Message requireHelp(Message message);
     static Message rowColMultiplication(Message message);
     static Message cannonMultiplication(Message message);
+    static Message convolution(Message message);
 
     //WEBSERVICE CALLBACKS
     static Message identity(Message message);
@@ -21,6 +22,9 @@ public:
     static Message pause(Message message);
     static Message resume(Message message);
     static Message logs(Message message);
+    static Message restart(Message input);
+
+    static Message returnToSender(Message message);
 };
 
 

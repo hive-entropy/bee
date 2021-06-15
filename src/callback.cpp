@@ -14,6 +14,9 @@ Message templatedCannon(Message &inputMessage);
 template<typename T>
 Message templatedRowCol(Message &inputMessage);
 
+template<typename T>
+Message templatedConvolution(Message &input);
+
 Message Callback::health(Message message) {
     return ResponseBuilder::heartbeatMessage();
 }
@@ -59,7 +62,7 @@ Message Callback::identity(Message message){
 }
 
 Message Callback::stop(Message message){
-
+    exit(0);
 }
 
 Message Callback::pause(Message message){
@@ -72,6 +75,33 @@ Message Callback::resume(Message message){
 
 Message Callback::logs(Message message){
 
+}
+
+Message Callback::restart(Message input){
+    exit(99);
+}
+
+Message Callback::returnToSender(Message message){
+    Message output;
+    output.setContent(message.getContent());
+    output.setType(MessageType::ACK);
+    output.setHttpMethod(HttpMethod::OK);
+    output.addHeader(Headers::PURPOSE,"around");
+    return output;
+}
+
+Message Callback::convolution(Message message){
+     // Get the matrix type
+    string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
+
+    // Call the template method with the corresponding type
+    if (matrixType == typeid(int).name()) {
+        return templatedConvolution<int>(message);
+    } else if (matrixType == typeid(double).name()) {
+        return templatedConvolution<double>(message);
+    } else if (matrixType == typeid(float).name()) {
+        return templatedConvolution<float>(message);
+    }
 }
 
 
@@ -162,4 +192,17 @@ Message templatedRowCol(Message &inputMessage) {
         return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
     }
 
+}
+
+template<typename T>
+Message templatedConvolution(Message &input){
+    string calculationId = input.getHeaders()[Headers::CALCULATION_ID];
+    int startRow = stoi(input.getHeaders()[Headers::INSERT_AT_X]);
+    int startCol = stoi(input.getHeaders()[Headers::INSERT_AT_Y]);
+
+    std::vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(input.getContent());
+
+    Matrix<T> result = matrices[0].convolve(matrices[1]);
+
+    return ResponseBuilder::matrixConvolutionResultFragmentMessage(calculationId,"a",startRow,startCol,result);
 }
