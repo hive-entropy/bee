@@ -254,9 +254,16 @@ Message templatedConvolution(Message &input){
 
     spdlog::info("Extracted insertion point ({},{}) for calculation UID={}",startRow,startCol,calculationId);
 
+
+
     std::vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(input.getContent());
     spdlog::debug("Extracted operand matrices");
-    Matrix<T> result = matrices[0].convolve(matrices[1],EdgeHandling::Crop);
+    try{
+        Matrix<T> result = matrices[0].convolve(matrices[1],EdgeHandling::Crop);
+    }
+    catch(std::string s){
+        spdlog::error("Intercepted exception: {}", s);
+    }
     spdlog::debug("Calculated convolution result");
 
     spdlog::info("Sending: Convolution result");
