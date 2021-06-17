@@ -23,7 +23,7 @@ target_include_directories(BeeLib PUBLIC include)
 
 # Set compiler options
 target_compile_options(BeeLib PUBLIC -Wall -g)
-target_compile_features(BeeLib PUBLIC cxx_std_11)
+target_compile_features(BeeLib PUBLIC cxx_std_17)
 
 # Link the library
 target_link_libraries(BeeLib
