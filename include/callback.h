@@ -8,23 +8,25 @@
 #include <HiveEntropyAPI/full.h>
 
 class Callback {
-public:
-    static Message health(Message message);
-    static Message hardware(Message message);
-    static Message requireHelp(Message message);
-    static Message rowColMultiplication(Message message);
-    static Message cannonMultiplication(Message message);
-    static Message convolution(Message message);
+    private:
+        static bool paused;
+    public:
+        static Message health(Message message);
+        static Message hardware(Message message);
+        static Message requireHelp(Message message);
+        static Message rowColMultiplication(Message message);
+        static Message cannonMultiplication(Message message);
+        static Message convolution(Message message);
 
-    //WEBSERVICE CALLBACKS
-    static Message identity(Message message);
-    static Message stop(Message message);
-    static Message pause(Message message);
-    static Message resume(Message message);
-    static Message logs(Message message);
-    static Message restart(Message input);
+        //WEBSERVICE CALLBACKS
+        static Message identity(Message message);
+        static Message stop(Message message);
+        static Message pause(Message message);
+        static Message resume(Message message);
+        static Message logs(Message message);
+        static Message restart(Message input);
 
-    static Message returnToSender(Message message);
+        static Message returnToSender(Message message);
 };
 
 
