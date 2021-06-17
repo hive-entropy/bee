@@ -11,6 +11,8 @@
 
 bool Callback::paused = false;
 
+static auto logger = spdlog::get("log");
+
 //Forward declaration
 template<typename T>
 Message templatedCannon(Message &inputMessage);
@@ -22,32 +24,32 @@ template<typename T>
 Message templatedConvolution(Message &input);
 
 Message Callback::health(Message message) {
-    spdlog::info("Received: Healthcheck");
-    spdlog::info("Sent: Heartbeat");
+    logger.get()->info("Received: Healthcheck");
+    logger.get()->info("Sent: Heartbeat");
     return ResponseBuilder::heartbeatMessage();
 }
 
 Message Callback::hardware(Message message) {
-    spdlog::info("Received: Hardware Query");
-    spdlog::info("Sent: Hardware characteristics response");
+    logger.get()->info("Received: Hardware Query");
+    logger.get()->info("Sent: Hardware characteristics response");
     return ResponseBuilder::hardwareMessage();
 }
 
 Message Callback::requireHelp(Message message) {
-    spdlog::info("Received: Assistance Query");
+    logger.get()->info("Received: Assistance Query");
 
     //TODO Determine response (if busy and not taking too many resources)
     bool response = true;
 
 
-    spdlog::info("Sent: Assistance Response ({})",response);
+    logger.get()->info("Sent: Assistance Response ({})",response);
     return ResponseBuilder::assistanceResponseMessage(response);
 }
 
 Message Callback::rowColMultiplication(Message message){
     // Get the matrix type
     std::string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
-    spdlog::info("Received: Row-Column multiplication task for type {}",matrixType);
+    logger.get()->info("Received: Row-Column multiplication task for type {}",matrixType);
 
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
@@ -62,7 +64,7 @@ Message Callback::rowColMultiplication(Message message){
 Message Callback::cannonMultiplication(Message message) {
     // Get the matrix type
     string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
-    spdlog::info("Received: Cannon multiplication task for type {}",matrixType);
+    logger.get()->info("Received: Cannon multiplication task for type {}",matrixType);
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
         return templatedCannon<int>(message);
@@ -74,7 +76,7 @@ Message Callback::cannonMultiplication(Message message) {
 }
 
 Message Callback::identity(Message message){
-    spdlog::info("Received: State Query");
+    logger.get()->info("Received: State Query");
     Message output;
 
     //TODO Determine if busy
@@ -85,46 +87,46 @@ Message Callback::identity(Message message){
     output.setHttpMethod(HttpMethod::OK);
     output.addHeader(Headers::PURPOSE,"identity");
     output.setContent((busy) ? "busy" : (paused) ? "paused" : "idle");
-    spdlog::info("Send State response ({})",output.getContent());
+    logger.get()->info("Send State response ({})",output.getContent());
     return output;
 }
 
 Message Callback::stop(Message message){
-    spdlog::info("Received: Stop signal from network");
+    logger.get()->info("Received: Stop signal from network");
     exit(0);
 }
 
 Message Callback::pause(Message message){
-    spdlog::info("Received: Pause signal from network");
-    spdlog::info("Pausing Worker");
+    logger.get()->info("Received: Pause signal from network");
+    logger.get()->info("Pausing Worker");
     paused = true;
 }
 
 Message Callback::resume(Message message){
-    spdlog::info("Received: Resume signal from network");
-    spdlog::info("Resuming Worker");
+    logger.get()->info("Received: Resume signal from network");
+    logger.get()->info("Resuming Worker");
     paused = false;
 }
 
 Message Callback::logs(Message message){
-    spdlog::info("Received: Logs Query");
+    logger.get()->info("Received: Logs Query");
 
     //TODO Output logs to string and send
 }
 
 Message Callback::restart(Message input){
-    spdlog::info("Received: Restart Signal from network");
+    logger.get()->info("Received: Restart Signal from network");
     exit(99);
 }
 
 Message Callback::returnToSender(Message message){
-    spdlog::info("Received: Boomerang message");
+    logger.get()->info("Received: Boomerang message");
     Message output;
     output.setContent(message.getContent());
     output.setType(MessageType::ACK);
     output.setHttpMethod(HttpMethod::OK);
     output.addHeader(Headers::PURPOSE,"around");
-    spdlog::info("Sending: Message with same input");
+    logger.get()->info("Sending: Message with same input");
     return output;
 }
 
@@ -132,7 +134,7 @@ Message Callback::convolution(Message message){
      // Get the matrix type
     string matrixType = message.getHeaders()[Headers::ELEMENT_TYPE];
 
-    spdlog::info("Received: Convolution task for type {}",matrixType);
+    logger.get()->info("Received: Convolution task for type {}",matrixType);
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
         return templatedConvolution<int>(message);
@@ -218,28 +220,28 @@ Message templatedRowCol(Message &inputMessage) {
     int startCol = stoi(inputMessage.getHeaders()[Headers::INSERT_AT_Y]);
     string serializedType = inputMessage.getHeaders()[Headers::SERIALIZED_TYPE];
 
-    spdlog::info("Extracted insertion point ({},{}) for calculation UID={}",startRow,startCol,calculationId);
+    logger.get()->info("Extracted insertion point ({},{}) for calculation UID={}",startRow,startCol,calculationId);
 
     if(serializedType==SERIALIZED_TYPE_ROWCOL){
-        spdlog::info("Using Single Row-Column pair mode");
+        logger.get()->info("Using Single Row-Column pair mode");
         // Deserialize the row and column
         std::pair<Row<T>, Column<T>> rowCol = Serializer::unserializeRowColumn<T>(inputMessage.getContent());
         // Multiply the row and column
         T result = rowCol.first * rowCol.second;
 
-        spdlog::info("Sending: Multiplication Result (single element)");
+        logger.get()->info("Sending: Multiplication Result (single element)");
         // Add the result to the output message
         return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
     }
     else if(serializedType==SERIALIZED_TYPE_MATRICES){
-        spdlog::info("Using Multiple Row-Column bands mode");
+        logger.get()->info("Using Multiple Row-Column bands mode");
         // Deserialize the row and column
         std::vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(inputMessage.getContent());
 
         // Multiply the row and column
         Matrix<T> result = matrices[0] * matrices[1];
         
-        spdlog::info("Sending: Multiplication Result (submatrix block)");
+        logger.get()->info("Sending: Multiplication Result (submatrix block)");
         // Add the result to the output message
         return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
     }
@@ -252,15 +254,15 @@ Message templatedConvolution(Message &input){
     int startRow = stoi(input.getHeaders()[Headers::INSERT_AT_X]);
     int startCol = stoi(input.getHeaders()[Headers::INSERT_AT_Y]);
 
-    spdlog::info("Extracted insertion point ({},{}) for calculation UID={}",startRow,startCol,calculationId);
+    logger.get()->info("Extracted insertion point ({},{}) for calculation UID={}",startRow,startCol,calculationId);
 
     
 
     std::vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(input.getContent());
-    spdlog::debug("Extracted operand matrices");
+    logger.get()->debug("Extracted operand matrices");
     Matrix<T> result = matrices[0].convolve(matrices[1],EdgeHandling::Crop);
-    spdlog::debug("Calculated convolution result");
+    logger.get()->debug("Calculated convolution result");
 
-    spdlog::info("Sending: Convolution result");
+    logger.get()->info("Sending: Convolution result");
     return ResponseBuilder::matrixConvolutionResultFragmentMessage(calculationId,startRow,startCol,result);
 }
