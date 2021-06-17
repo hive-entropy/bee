@@ -136,10 +136,15 @@ Message Callback::convolution(Message message){
     // Call the template method with the corresponding type
     if (matrixType == typeid(int).name()) {
         return templatedConvolution<int>(message);
-    } else if (matrixType == typeid(double).name()) {
+    } 
+    else if (matrixType == typeid(double).name()) {
         return templatedConvolution<double>(message);
-    } else if (matrixType == typeid(float).name()) {
+    } 
+    else if (matrixType == typeid(float).name()) {
         return templatedConvolution<float>(message);
+    }
+    else if(matrixType==typeid(unsigned short).name()){
+        return templatedConvolution<unsigned short>(message);
     }
 }
 
@@ -249,7 +254,6 @@ Message templatedConvolution(Message &input){
 
     spdlog::info("Extracted insertion point ({},{}) for calculation UID={}",startRow,startCol,calculationId);
 
-    spdlog::info("Extracted following body: {}",input.getContent());
     std::vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(input.getContent());
     spdlog::debug("Extracted operand matrices");
     Matrix<T> result = matrices[0].convolve(matrices[1],EdgeHandling::Crop);
