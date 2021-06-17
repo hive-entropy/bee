@@ -249,6 +249,7 @@ Message templatedConvolution(Message &input){
 
     spdlog::info("Extracted insertion point ({},{}) for calculation UID={}",startRow,startCol,calculationId);
 
+    spdlog::info("Extracted following body: {}",input.getContent());
     std::vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(input.getContent());
     spdlog::debug("Extracted operand matrices");
     Matrix<T> result = matrices[0].convolve(matrices[1],EdgeHandling::Crop);
