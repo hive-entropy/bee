@@ -12,6 +12,7 @@ int main(int argc, char* argv[]) {
 
     //Setting log message pattern
     spdlog::set_pattern("[%H:%M:%S.%e] [%!] (%l) %v");
+    spdlog::set_level(spdlog::level::debug);
 
     // Dependency injection
     HiveEntropyNode *hiveEntropyNode;
