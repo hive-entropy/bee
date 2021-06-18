@@ -8,7 +8,7 @@
 #include <HiveEntropyAPI/full.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
-static auto logger = stdout_logger_mt("logger");
+static auto logger = spdlog::stdout_logger_mt("logger");
 
 
 int main(int argc, char* argv[]) {
