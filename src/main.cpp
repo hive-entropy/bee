@@ -16,13 +16,13 @@ int main(int argc, char* argv[]) {
     spdlog::set_default_logger(logger);
 
     //Setting log message pattern
-    logger.get()->set_pattern("[%H:%M:%S.%e] [%!] (%l) %v");
-    logger.get()->set_level(spdlog::level::debug);
+    spdlog::set_pattern("[%H:%M:%S.%e] [%!] (%l) %v");
+    spdlog::set_level(spdlog::level::debug);
 
     // Dependency injection
     HiveEntropyNode *hiveEntropyNode;
     if(argc>=2){
-        logger.get()->info("Found IP address {} to use",argv[1]);
+        spdlog::info("Found IP address {} to use",argv[1]);
         hiveEntropyNode = new  HiveEntropyNode(std::string(argv[1])+":9999");
     }
     else
