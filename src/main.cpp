@@ -13,6 +13,8 @@ static auto logger = spdlog::basic_logger_mt("log","bee.log");
 
 int main(int argc, char* argv[]) {
 
+    spdlog::set_default_logger(logger);
+
     //Setting log message pattern
     logger.get()->set_pattern("[%H:%M:%S.%e] [%!] (%l) %v");
     logger.get()->set_level(spdlog::level::debug);
