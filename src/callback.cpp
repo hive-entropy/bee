@@ -12,7 +12,7 @@
 
 bool Callback::paused = false;
 
-static auto logger = spdlog::stdout_logger_mt("logger");
+static auto logger = spdlog::stdout_logger_mt("logger2");
 
 //Forward declaration
 template<typename T>
