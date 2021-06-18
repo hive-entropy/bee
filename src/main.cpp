@@ -6,9 +6,9 @@
 #include "processor.h"
 
 #include <HiveEntropyAPI/full.h>
-#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
-static auto logger = spdlog::basic_logger_mt("log","bee.log");
+static auto logger = stdout_logger_mt("logger");
 
 
 int main(int argc, char* argv[]) {
