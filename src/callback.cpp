@@ -4,6 +4,7 @@
 
 #include <HiveEntropyAPI/full.h>
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
 #include "endpoint.h"
 #include "bee.h"
