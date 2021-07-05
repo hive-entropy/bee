@@ -7,18 +7,20 @@ Programme standalone prenant en charge les requêtes distribuées sur un réseau
 - Traitement de la demande (opération matricielle).
 - Envoi du résultat du traitement.
 
-## Installation
-```
-cmake -Bbuild/ -S. --target install
+## Utilisation
+
+### Initialiser le projet CMake
+```bash
+cmake -Bbuild/ -S.
 ```
 
-## Utilisation
-Lancer le worker :
+### Construire et lancer le worker
+```bash
+cmake --build build/ --target Bee
+./build/Bee [Addresse IP LAN du worker]
 ```
-cmake -Bbuild/ -S.
-./build/Bee
-```
-Lancer les tests :
+
+### Lancer les tests
 ```
 cmake -Bbuild/ -S. --target BeeTest
 ./build/test/BeeTest
