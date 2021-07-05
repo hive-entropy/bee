@@ -232,7 +232,7 @@ Message templatedRowCol(Message &inputMessage) {
         // Add the result to the output message
         return ResponseBuilder::matrixMultiplicationResultFragmentMessage(calculationId, startRow, startCol, result);
     }
-    else if(serializedType==SERIALIZED_TYPE_MATRICES){
+    else {
         spdlog::info("Using Multiple Row-Column bands mode");
         // Deserialize the row and column
         std::vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(inputMessage.getContent());
@@ -254,8 +254,6 @@ Message templatedConvolution(Message &input){
     int startCol = stoi(input.getHeaders()[Headers::INSERT_AT_Y]);
 
     spdlog::info("Extracted insertion point ({},{}) for calculation UID={}",startRow,startCol,calculationId);
-
-    
 
     std::vector<Matrix<T>> matrices = Serializer::unserializeMatrices<T>(input.getContent());
     spdlog::debug("Extracted operand matrices");

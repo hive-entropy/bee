@@ -40,4 +40,4 @@ target_link_libraries(Bee BeeLib)
 ##############################################
 ## Add tests
 # Test integration: https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md
-add_subdirectory(test)
+#add_subdirectory(test)

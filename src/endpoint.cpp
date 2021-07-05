@@ -5,7 +5,7 @@
 #include <HiveEntropyAPI/full.h>
 #include "endpoint.h"
 
-Endpoint::Endpoint(HiveEntropyNode *node) : node(
+Endpoint::Endpoint(shared_ptr<HiveEntropyNode> node) : node(
         node) {}
 
 Endpoint::~Endpoint() {}

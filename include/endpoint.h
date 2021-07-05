@@ -14,14 +14,14 @@
  */
 class Endpoint {
 private:
-    HiveEntropyNode *node;
+    std::shared_ptr<HiveEntropyNode> node;
 
 public:
     /**
      * Endpoint constructor.
      * @param nodeInterface
      */
-    Endpoint(HiveEntropyNode *node);
+    explicit Endpoint(shared_ptr<HiveEntropyNode> node);
 
     /**
      * Endpoint destructor.

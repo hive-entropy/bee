@@ -12,7 +12,6 @@ static auto logger = spdlog::stdout_logger_mt("logger");
 
 
 int main(int argc, char* argv[]) {
-
     spdlog::set_default_logger(logger);
 
     //Setting log message pattern
@@ -20,13 +19,13 @@ int main(int argc, char* argv[]) {
     spdlog::set_level(spdlog::level::debug);
 
     // Dependency injection
-    HiveEntropyNode *hiveEntropyNode;
+    std::shared_ptr<HiveEntropyNode> hiveEntropyNode;
     if(argc>=2){
         spdlog::info("Found IP address {} to use",argv[1]);
-        hiveEntropyNode = new  HiveEntropyNode(std::string(argv[1])+":9999");
+        hiveEntropyNode = std::make_shared<HiveEntropyNode>(std::string(argv[1])+":9999");
     }
     else
-         hiveEntropyNode = new  HiveEntropyNode("127.0.0.1:9999");
+         hiveEntropyNode = std::make_shared<HiveEntropyNode>("127.0.0.1:9999");
 
     Endpoint endpoint(hiveEntropyNode);
     Processor processor;
